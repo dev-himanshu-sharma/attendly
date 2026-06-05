@@ -55,23 +55,6 @@ Deployment:
 
 ---
 
-## Screenshots
-
-### Login Page
-
-
-
-### Dashboard
-(Add screenshot)
-
-### Attendance Center
-(Add screenshot)
-
-### Admin Panel
-(Add screenshot)
-
----
-
 ## Installation
 
 ### Clone Repository
