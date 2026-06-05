@@ -157,4 +157,28 @@ router.get("/admin/all", async (req, res) => {
   }
 });
 
+router.get("/shortage", authMiddleware, async (req, res) => {
+  const records = await Attendance.find({
+    userId: req.user.id
+  });
+
+  const totalDays = records.length;
+
+  const presentDays = records.filter(
+    (r) => r.status !== "Leave"
+  ).length;
+
+  const percentage =
+    totalDays === 0
+      ? 0
+      : ((presentDays / totalDays) * 100).toFixed(2);
+
+  res.json({
+    totalDays,
+    presentDays,
+    percentage,
+    shortage: percentage < 75
+  });
+});
+
 export default router;
