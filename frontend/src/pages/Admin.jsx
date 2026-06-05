@@ -1,16 +1,12 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import API from "../services/api";
 import Layout from "../components/Layout";
-import { AuthContext } from "../context/AuthContext.js";
 import { FaClipboardList } from "react-icons/fa";
 
 export default function Admin() {
-  const [users, setUsers] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const { user: currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     fetchData();
@@ -21,41 +17,18 @@ export default function Admin() {
       setLoading(true);
       setError(null);
 
-      const [usersRes, attRes] = await Promise.all([
-        API.get("/admin/users"),
-        API.get("/admin/attendance"),
-      ]);
+      const attRes = await API.get("/admin/attendance");
 
-      setUsers(Array.isArray(usersRes.data) ? usersRes.data : []);
-      setAttendance(Array.isArray(attRes.data) ? attRes.data : []);
+      setAttendance(
+        Array.isArray(attRes.data) ? attRes.data : []
+      );
     } catch (err) {
       console.error("Admin Fetch Error:", err);
-      setError("Failed to load data. Please check if the server is running.");
+      setError(
+        "Failed to load data. Please check if the server is running."
+      );
     } finally {
       setLoading(false);
-    }
-  };
-
-  const deleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-
-    try {
-      await API.delete(`/admin/user/${id}`);
-
-      setUsers((prevUsers) =>
-        prevUsers.filter((u) => u._id !== id)
-      );
-
-      setAttendance((prevAttendance) =>
-        prevAttendance.filter(
-          (record) => record.userId?._id !== id
-        )
-      );
-
-      console.log("User and their local attendance records removed.");
-    } catch (err) {
-      console.error("Delete failed:", err);
-      alert("Could not delete user.");
     }
   };
 
@@ -95,7 +68,7 @@ export default function Admin() {
           </h1>
 
           <p className="text-gray-500">
-            System overview and user management.
+            System overview and attendance monitoring.
           </p>
         </div>
 
@@ -113,16 +86,16 @@ export default function Admin() {
                     Name
                   </th>
 
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-gray-400 text-center">
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">
                     Date
                   </th>
 
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">
-                    In
+                    Check In
                   </th>
 
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">
-                    Out
+                    Check Out
                   </th>
 
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">
@@ -142,7 +115,7 @@ export default function Admin() {
                       key={a._id}
                       className="hover:bg-gray-50/50"
                     >
-                      <td className="px-6 py-4 text-sm font-bold text-gray-800 capitalize">
+                      <td className="px-6 py-4 text-sm font-bold text-gray-800">
                         {a.userId?.name ||
                           a.userId?.email ||
                           "Unknown User"}
@@ -153,36 +126,28 @@ export default function Admin() {
                       </td>
 
                       <td className="px-6 py-4 text-center">
-                        <span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg text-xs font-black">
-                          {a.checkIn
-                            ? new Date(
-                                a.checkIn
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "—"}
-                        </span>
+                        {a.checkIn
+                          ? new Date(
+                              a.checkIn
+                            ).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "—"}
                       </td>
 
                       <td className="px-6 py-4 text-center">
-                        {a.checkOut ? (
-                          <span className="bg-orange-50 text-orange-700 px-2.5 py-1 rounded-lg text-xs font-black">
-                            {new Date(
+                        {a.checkOut
+                          ? new Date(
                               a.checkOut
                             ).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
-                            })}
-                          </span>
-                        ) : (
-                          <span className="text-gray-300 text-xs italic font-medium">
-                            Active
-                          </span>
-                        )}
+                            })
+                          : "Active"}
                       </td>
 
-                      <td className="px-6 py-4 text-center font-mono font-bold text-gray-700 text-sm">
+                      <td className="px-6 py-4 text-center font-bold">
                         {a.workHours
                           ? `${a.workHours}h`
                           : "0h"}
@@ -190,7 +155,7 @@ export default function Admin() {
 
                       <td className="px-6 py-4 text-right">
                         <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
                             a.status === "Present"
                               ? "bg-green-100 text-green-700"
                               : a.status === "Late"
