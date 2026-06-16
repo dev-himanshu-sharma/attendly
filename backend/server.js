@@ -31,7 +31,7 @@ app.get("/", (req, res) => {
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("DB Connected"))
 .catch(err => console.log(err));
-// "55 23 * * *"
+
 
 cron.schedule("55 23 * * *", async () => {
   console.log("Running Midnight Cleanup (Absentees & Forgotten Check-outs)...");
@@ -43,7 +43,7 @@ cron.schedule("55 23 * * *", async () => {
     for (let emp of allEmployees) {
       const record = await Attendance.findOne({ userId: emp._id, date: today });
 
-      // CASE 1: User never checked in (Absent)
+      
       if (!record) {
         await Attendance.create({
           userId: emp._id,
@@ -56,18 +56,15 @@ cron.schedule("55 23 * * *", async () => {
         console.log(`[ABSENT] Marked ${emp.email}`);
       } 
       
-      // CASE 2: User checked in but FORGOT to check out (Auto-Checkout)
       else if (record.checkIn && !record.checkOut) {
-        // We set the checkout time to 6:00 PM (18:00) as per your office rules
         const forcedOutTime = new Date(record.checkIn);
         forcedOutTime.setHours(18, 0, 0, 0); 
 
-        // Calculate hours worked (from Check-in until 6:00 PM)
         const diffInMs = forcedOutTime - new Date(record.checkIn);
         const hours = (diffInMs / (1000 * 60 * 60)).toFixed(2);
 
         record.checkOut = forcedOutTime;
-        record.workHours = parseFloat(hours > 0 ? hours : 0); // Ensure no negative hours
+        record.workHours = parseFloat(hours > 0 ? hours : 0); 
         
         await record.save();
         console.log(`[AUTO-OUT] Closed session for ${emp.email} at 6:00 PM`);
