@@ -2,9 +2,9 @@
 
 A modern Attendance Management System built using the MERN Stack.
 
-## 🌐 Live Demo
+[## 🌐 Live Demo](https://attendlyapp-henna.vercel.app)
 
-https://attendlyapp-evwl4whra-himanshus-projects-e22cd52a.vercel.app/
+
 
 ---
 
