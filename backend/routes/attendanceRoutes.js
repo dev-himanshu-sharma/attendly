@@ -54,7 +54,6 @@ router.post("/", authMiddleware, async (req, res) => {
 
     checkIn: now,
 
-    status: finalStatus, // Automatically marked!
   });
 
   res.json(attendance);
@@ -94,14 +93,12 @@ router.put("/checkout/:id", authMiddleware, async (req, res) => {
   res.json(record);
 });
 
-// Check-out (After 6 PM only)
 
 router.put("/checkout/:id", authMiddleware, async (req, res) => {
   const now = new Date();
 
   const currentHour = now.getHours();
 
-  // 2. Time Restriction: After 6 PM (18:00)
 
   if (currentHour < 18) {
     return res.status(400).json({
@@ -124,7 +121,7 @@ router.put("/checkout/:id", authMiddleware, async (req, res) => {
 
   record.checkOut = now;
 
-  record.workHours = parseFloat(hoursWorked); // Store hours in DB
+  record.workHours = parseFloat(hoursWorked); 
 
   await record.save();
 
@@ -141,13 +138,13 @@ router.get("/me", authMiddleware, async (req, res) => {
   res.json(records);
 });
 
-// Example Admin Route
+
 
 router.get("/admin/all", async (req, res) => {
   try {
     const attendances = await Attendance.find()
 
-      .populate("userId", "name email role") // <--- Make sure 'role' is included here
+      .populate("userId", "name email role") 
 
       .sort({ date: -1 });
 

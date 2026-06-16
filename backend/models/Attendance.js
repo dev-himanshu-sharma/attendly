@@ -8,23 +8,22 @@ const attendanceSchema = new mongoose.Schema({
   },
   date: { 
     type: String, 
-    required: true // e.g., "2026-03-20"
+    required: true 
   },
   checkIn: { 
-    type: Date // Changed from String to Date for precise math
+    type: Date 
   },
   checkOut: { 
-    type: Date // Changed from String to Date
+    type: Date
   },
   workHours: { 
     type: Number, 
-    default: 0 // New field to store the calculated duration
+    default: 0 
   },
   status: {
     type: String,
     enum: ["Present", "Absent","Late","Half-day","Leave"],
     default: "Present"
   }
-}, { timestamps: true }); // Adds createdAt and updatedAt automatically
-
+}, { timestamps: true }); 
 export default mongoose.model("Attendance", attendanceSchema);

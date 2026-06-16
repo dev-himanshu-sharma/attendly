@@ -32,9 +32,7 @@ export default function Sidebar() {
   return (
     <div className="w-64 h-screen bg-white border-r border-gray-100 p-6 flex flex-col shadow-sm">
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-indigo-200 shadow-lg">
-          A
-        </div>
+      
 
         <h2 className="text-xl font-bold text-gray-900 tracking-tight">
           Attendly

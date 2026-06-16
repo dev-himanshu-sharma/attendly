@@ -220,11 +220,11 @@ useEffect(() => {
       <div className="mt-4">
         {stats.shortage ? (
           <p className="font-bold text-red-600">
-            ⚠ Attendance Shortage (Below 75%)
+             Attendance Shortage (Below 75%)
           </p>
         ) : (
           <p className="font-bold text-green-600">
-            ✅ Attendance Safe
+             Attendance Safe
           </p>
         )}
       </div>

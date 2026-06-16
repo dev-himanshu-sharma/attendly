@@ -35,10 +35,10 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-50 to-indigo-100 p-4">
       <div className="bg-white/90 backdrop-blur-sm w-full max-w-md p-8 rounded-3xl shadow-2xl border border-white">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-lg mb-4 text-xl font-bold">
-            A
-          </div>
+        <div className="text-center mb-10 ">
+          <div className="flex justify-center">
+ 
+</div>
 
           <h2 className="text-3xl font-extrabold text-gray-900">
             Welcome Back
