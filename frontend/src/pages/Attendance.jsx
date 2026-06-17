@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import API from "../services/api";
 import Layout from "../components/Layout";
+import BiometricCheckIn from "../components/BiometricCheckIn";
+import { AuthContext } from "../context/AuthContext";
 import {
   FaSignInAlt,
   FaSignOutAlt,
@@ -8,8 +10,10 @@ import {
 } from "react-icons/fa";
 
 export default function Attendance() {
+  const { user } = useContext(AuthContext);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [biometricStatus, setBiometricStatus] = useState("");
 
   const currentHour = new Date().getHours();
 
@@ -47,7 +51,14 @@ useEffect(() => {
 
     try {
       if (type === "checkin") {
-        await API.post("/attendance");
+        // For biometric users, they should use biometric component instead
+        if (user?.biometricApproved) {
+          alert("Please use the Biometric Check-In section above");
+          setLoading(false);
+          return;
+        }
+        
+        await API.post("/attendance", {});
       } else {
         const today = new Date().toISOString().split("T")[0];
 
@@ -92,6 +103,14 @@ useEffect(() => {
           (15 min grace period)
         </p>
 
+        {/* Biometric Check-In Section */}
+        {user?.biometricApproved && (
+          <div className="mb-10 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-3xl border border-blue-100">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">🔐 Biometric Attendance</h2>
+            <BiometricCheckIn />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div
             className={`p-6 rounded-3xl border transition-all ${
@@ -127,6 +146,17 @@ useEffect(() => {
                 ? "Check In"
                 : "Closed"}
             </button>
+
+            {user?.biometricRegistered && !user?.biometricApproved && (
+              <p className="mt-4 text-sm text-orange-600">
+                Biometric registered and awaiting admin approval.
+              </p>
+            )}
+            {!user?.biometricRegistered && (
+              <p className="mt-4 text-sm text-gray-500">
+                Register biometric after first login on your dashboard.
+              </p>
+            )}
           </div>
 
           <div

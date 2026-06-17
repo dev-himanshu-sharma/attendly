@@ -12,21 +12,46 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        return reject(new Error("Geolocation is not supported by your browser."));
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (locationError) => {
+          reject(locationError);
+        },
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    });
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
+      const location = await getCurrentLocation();
+
       const res = await API.post("/auth/login", {
         email,
         password,
+        location,
       });
 
       login(res.data.token);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError("Invalid email or password");
+      const serverMessage = err.response?.data?.message;
+      setError(serverMessage || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -60,6 +85,8 @@ export default function Login() {
             <input
               required
               type="email"
+              
+              title="Enter a valid email address"
               placeholder="you@example.com"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               onChange={(e) => setEmail(e.target.value)}
@@ -89,8 +116,46 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-gray-600 text-sm">
-          Don't have an account?{" "}
+        <div className="mt-6 grid gap-3">
+          <button
+            onClick={async () => {
+              setLoading(true);
+              setError("");
+              try {
+                const location = await getCurrentLocation();
+                const res = await API.post("/auth/biometric-login", {
+                  email,
+                  location,
+                });
+                login(res.data.token);
+                navigate("/dashboard", { replace: true });
+              } catch (err) {
+                const serverMessage = err.response?.data?.message;
+                setError(serverMessage || "Biometric login failed.");
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            className="w-full py-3 rounded-xl font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-lg transition-all disabled:bg-teal-300"
+          >
+            {loading ? "Processing biometric..." : "Biometric Login"}
+          </button>
+
+          <p className="text-center text-xs text-gray-500">
+            Use biometric login only after admin approval and location verification.
+          </p>
+        </div>
+
+        <p className="mt-6 text-center text-gray-600 text-sm">
+          Forgot your password? {" "}
+          <Link to="/forgot-password" className="text-blue-600 font-bold hover:underline">
+            Reset it here
+          </Link>
+        </p>
+
+        <p className="mt-4 text-center text-gray-600 text-sm">
+          Don't have an account? {" "}
           <Link
             to="/register"
             className="text-blue-600 font-bold hover:underline"

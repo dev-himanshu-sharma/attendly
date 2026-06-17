@@ -7,17 +7,19 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setMessage("");
     try {
-      await API.post("/auth/register", { name, email, password });
-      alert("Registered Successfully");
-      navigate("/"); 
+      const res = await API.post("/auth/register", { name, email, password });
+      setMessage(res.data?.message || "Registered successfully. Please check your email.");
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      setMessage(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -38,7 +40,7 @@ export default function Register() {
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1 ml-1">Email Address</label>
-            <input required type="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="name@example.com" onChange={(e) => setEmail(e.target.value)} />
+            <input required type="email" pattern="^[a-zA-Z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$" title="Enter a valid email address" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="name@example.com" onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1 ml-1">Password</label>
@@ -48,6 +50,12 @@ export default function Register() {
             {loading ? "Processing..." : "Register"}
           </button>
         </form>
+
+        {message && (
+          <div className="mb-4 px-4 py-3 rounded-2xl bg-blue-50 text-blue-700 border border-blue-100 text-sm">
+            {message}
+          </div>
+        )}
 
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">

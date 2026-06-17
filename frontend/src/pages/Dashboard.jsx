@@ -11,12 +11,13 @@ import {
 } from "react-icons/fa";
 
 export default function Dashboard() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, biometricRegister, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalDays: 0,
     totalHours: 0
   });
+  const [biometricMessage, setBiometricMessage] = useState("");
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -30,6 +31,15 @@ export default function Dashboard() {
 
     fetchStats();
   }, []);
+
+  const requestBiometric = async () => {
+    try {
+      const res = await biometricRegister();
+      setBiometricMessage(res.message);
+    } catch (err) {
+      setBiometricMessage(err.response?.data?.message || "Unable to register biometric data.");
+    }
+  };
 
   const calculateStats = (records) => {
     const total = records.reduce((acc, rec) => {
@@ -148,7 +158,7 @@ export default function Dashboard() {
             </p>
           </button>
 
-          {user?.role === "admin" && (
+          {user?.role === "admin" ? (
             <button
               onClick={() => navigate("/admin")}
               className="p-8 bg-white border border-gray-100 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left group"
@@ -162,9 +172,39 @@ export default function Dashboard() {
               </h3>
 
               <p className="text-gray-500 mt-2 leading-relaxed">
-                Manage company users, delete accounts, and monitor
-                global attendance logs.
+                Manage verification requests and review attendance.
               </p>
+            </button>
+          ) : (
+            <button
+              onClick={requestBiometric}
+              className="p-8 bg-white border border-gray-100 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left group"
+            >
+              <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-2xl">
+                <FaShieldAlt />
+              </div>
+
+              <h3 className="text-2xl font-bold text-gray-800 tracking-tight">
+                Biometric Login Request
+              </h3>
+
+              <p className="text-gray-500 mt-2 leading-relaxed">
+                Request biometric access for quick login once approved by an admin.
+              </p>
+
+              <button
+                type="button"
+                onClick={requestBiometric}
+                className="mt-4 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all"
+              >
+                Register Biometric Data
+              </button>
+
+              {biometricMessage && (
+                <div className="mt-4 text-sm text-gray-700 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                  {biometricMessage}
+                </div>
+              )}
             </button>
           )}
         </div>
